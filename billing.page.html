@@ -1,0 +1,990 @@
+<ion-header *ngIf="width>=500">
+  <ion-toolbar>
+    <ion-buttons slot="start" (click)="openCustom(menutoggle)">
+      <ion-icon name="menu" *ngIf="width >500"></ion-icon>
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-row *ngIf="width>=500" style="font-size: 15px;text-align: center;font-family: Calibri;font-weight: bold;">
+      <!-- <ion-col size="0.5" >
+        <ion-icon name="menu"></ion-icon>
+      </ion-col> -->
+      <ion-col size="1.5">
+        <img src="{{logo}}" style="height: 15px;width:60px;object-fit: contain;">
+      </ion-col>
+      <ion-col size="4">
+        <span style="padding-right: 50px">{{restname}} - {{branchname}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BILLING
+        </span>
+      </ion-col>
+      <ion-col size="2.5" style="text-align:center;"><span>
+          {{name}} - {{ today | date: 'MMM dd ,yyyy' }}</span>
+      </ion-col>
+      <ion-col size="0.5">
+        <img *ngIf="online==1" src="/assets/images/online.png" width="20">
+        <img *ngIf="online==0" src="/assets/images/offline.png" width="15">
+      </ion-col>
+      <ion-col size="0.5">
+       
+      </ion-col>
+      <ion-col size="0.5">
+        <img src="assets/icon/man.png" (click)="redirect('mastersetup')" class="selnocolor outline circle-emoji image">
+      </ion-col>
+      <ion-col size="0.5">
+        <img src="assets/icon/report.png" (click)="redirect('reports')" class="selnocolor outline circle-emoji image">
+      </ion-col>
+      <ion-col size="0.5" (click)="redirect('store')">
+        <img src="assets/icon/stock.png" class="selnocolor outline circle-emoji image">
+      </ion-col>
+      <ion-col size='0.5' (click)="redirect('production')">
+        <img src="assets/icon/production.png" class="selnocolor outline circle-emoji image">
+      </ion-col>
+      <ion-col size="0.5" (click)="home()">
+        <img src="assets/icon/home.png" class="selnocolor outline circle-emoji image">
+      </ion-col>
+      <ion-col size="0.5" (click)="logout()">
+        <img src="assets/icon/logout.png" class="selnocolor outline circle-emoji image">
+      </ion-col>
+    </ion-row>
+  
+  </ion-toolbar>
+
+</ion-header>
+<ion-header *ngIf="width<=500">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      <ion-row>
+        <ion-col size="8">
+          <span *ngIf="order_type=='E'">POS - Dine-In </span>
+          <span *ngIf="order_type=='P'">POS - TakeAway</span>
+          <span *ngIf="order_type=='D'">POS - Delivery</span>
+          <span *ngIf="order_type=='S'">POS - Self-Service</span>
+
+        </ion-col>
+        <ion-col size="2" (click)="home()">
+          <img src="assets/icon/home.png" class="selnocolor outline circle-emoji image">
+        </ion-col>
+        <ion-col size="2" (click)="logout()">
+          <img src="assets/icon/logout.png" class="selnocolor outline circle-emoji image">
+        </ion-col>
+      </ion-row>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-row *ngIf="width>=500" style="height: 45px;border-bottom: 1px solid #e6e6e6;">
+  <ion-col size="2">
+    <ion-row>
+      <ion-col size="6.5">
+        <p class="category selctcat" style="border-radius: 5px;height: 25px" (click)="menuresize()">Menu View
+          <ion-icon *ngIf="data.menuview==1" name="square-outline"></ion-icon>
+          <ion-icon *ngIf="data.menuview==2" name="copy-outline"></ion-icon>
+        </p>
+      </ion-col>
+      <ion-col size="5" style="height: 25px;margin-top: 0px;">
+        <p class="category selctcat" style="border-radius: 5px;height: 25px">{{floorname}}</p>
+      </ion-col>
+    </ion-row>
+  </ion-col>
+  <ion-col size="6">
+    <ion-row>
+      <ion-col size="7">
+        <ion-searchbar [(ngModel)]="data.search" (ionChange)="searchitem()" mode='ios' showCancelButton="never"
+          style="margin-top: -18px" animated></ion-searchbar>
+        <div *ngIf="form1==true" style="margin-top: -25px">
+          <div class="category" style="overflow-y:auto;">
+            <ion-row *ngFor="let m of menussearch"
+              style="background: rgb(50, 41, 41);position: relative;z-index: 999;  padding: 6px !important;color: white;"
+              (click)="select_menu(m)">
+              {{m.name}}<span *ngIf="m.productionMappingStatus === true" class="menu_name"
+                style="font-weight: bolder ; color:burlywood;">-[{{m.productionItemCount | number:'.2' }}]</span>
+              <ion-col></ion-col>
+            </ion-row>
+          </div>
+        </div>
+      </ion-col>
+      <ion-col size="2">
+        <ion-input placeholder="QTY" [(ngModel)]="data.qty" (keypress)="keyPress($event)" minlength=1 maxlength=6
+          name="qty" type="number" id="qty1" autofocus="true" ngModel [(ngModel)]="data.qty"
+          style="--background: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.07);height: 25px;" class="selectoption">
+        </ion-input>
+      </ion-col>
+      <ion-col size="0.5" *ngFor="let m of search_menu">
+        <span (click)="knotesPopover($event,m)">
+          <ion-icon name="create" color="medium" *ngIf="length!=0" style="font-size: 20px;"></ion-icon>
+        </span>
+      </ion-col>
+      <ion-col size="2.5">
+        <ion-button color="secondary" size="small" (click)="search_add()" style="margin-top: 0px;height: 25px;"
+          [disabled]="(length==0)">ADD</ion-button>&nbsp;&nbsp;
+      </ion-col>
+    </ion-row>
+  </ion-col>
+  <ion-col size="4">
+    <ion-row>
+      <ion-col>
+        <ion-button color="secondary" size="small" (click)="neworder()" class="buttonstyle"
+          style="margin-left: -73px;margin-top: 0px;">New Order </ion-button>
+        <!-- <ion-badge>F6</ion-badge> -->
+      </ion-col>
+
+      <ion-col>
+        <ionic-selectable [(ngModel)]="floorvalue" [items]="floor1" itemValueField="fid" itemTextField="descr"
+          [canSearch]="true" (onChange)="floorchange($event)" class="selectoption" placeholder="Floor">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col *ngIf="cust=='E'">
+
+        <ionic-selectable #tableComponent [(ngModel)]="tablevalue" [items]="table1" itemValueField="id"
+          itemTextField="tno" [canSearch]="true" (onChange)="tableChange($event)" class="selectoption"
+          placeholder="Table No">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col *ngIf="cust=='E'">
+        <ion-input type="tel" name="drppeople" id="drppeople" minlength="1" maxlength="3" (keypress)="keyPress($event)"
+          class="selectoption" [(ngModel)]="noofpax" Placeholder="No of Pax">
+        </ion-input>
+      </ion-col>
+      <ion-col *ngIf="cust=='E'">
+
+        <ionic-selectable #captainComponent [(ngModel)]="captainvalue" [items]="captain1" itemValueField="id"
+          itemTextField="cname" [canSearch]="true" (onChange)="captainChange($event)" class="selectoption"
+          placeholder="Captain">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col style="height:28px" *ngIf="cust=='P' || cust=='D'">
+        <ionic-selectable #onlinecomponent [(ngModel)]="onlinerefvalue" [items]="onlinerefmstr" itemValueField="id"
+          itemTextField="descr" [canSearch]="true" (onChange)="onlinerefChange($event)" class="selectoption"
+          placeholder="Reference">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col style="height:28px;" *ngIf="cust=='E' || cust=='P'">
+
+        <ionic-selectable #waiterComponent [(ngModel)]="waitervalue" [items]="waiter1" itemValueField="wid"
+          itemTextField="wname" [canSearch]="true" (onChange)="waiterChange($event)" class="selectoption"
+          placeholder="Waiter">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col *ngIf="cust=='P' || cust=='D'">
+        <ionic-selectable #deliverytimecomponet [(ngModel)]="delivery_time" [items]="deliverytime_arr"
+          itemValueField="id" itemTextField="deliverytiming" [canSearch]="true" (onChange)="select_timing($event)"
+          class="selectoption" placeholder="Delivery Time">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col *ngIf="cust=='R' && HtlDesk=='N'">
+        <ionic-selectable #roomlistcomponet [(ngModel)]="roomvalues" [items]="rooms" itemValueField="id"
+          itemTextField="name" [canSearch]="true" (onChange)="select_room($event)" class="selectoption"
+          placeholder="Room List">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col *ngIf="cust=='R' &&  HtlDesk=='Y'">
+        <ion-input name="discamnt" (ionBlur)="checkroomno()" placeholder="" class="roombox"
+          style="border: 1px solid #000000; height: 23px; --padding-end:5px;" ngModel [(ngModel)]="roomid">
+        </ion-input>
+      </ion-col>
+    </ion-row>
+  </ion-col>
+</ion-row>
+
+<ion-content>
+  <div *ngIf="width>500">
+    <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+    <!--Category-->
+    <ion-row>
+      <ion-col *ngIf="iscat === true" size="2" class="category" [ngStyle]="{'height.px':height}"
+        style="border-right: 1px solid #e6e6e6;overflow-y: auto;" (click)="myMouseClicked($event)">
+        <span *ngFor="let c of category">
+          <ion-card [ngClass]="(catid == c.id) ? 'selctcat' : 'selctnoncat'">
+            <p style="text-transform: uppercase;" (click)="menudetail(c.id)">{{c.name}}</p>
+          </ion-card>
+        </span>
+      </ion-col>
+      <ion-col *ngIf="iscat === false" size="2" style="border-right: 1px solid #e6e6e6;overflow-y: auto;"
+        (click)="myMouseClicked($event)">
+        <ion-list>
+          <ion-item *ngFor="let item of Arr(10).fill(1)">
+            <ion-label>
+              <ion-skeleton-text animated></ion-skeleton-text>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-col>
+      <!--Menu Details-->
+      <ion-col size="6" style="padding: 0px !important;border-right: 1px solid #e6e6e6;">
+
+        <!--Menu Search-->
+
+
+        <div>
+
+          <ion-row *ngIf="data.menuview=='1' && ismenu === true" class="category" style="overflow-y:auto"
+            [ngStyle]="{'height.px':height}" (click)="myMouseClicked($event)">
+            <div>
+              <ion-row>
+                <ion-col size="3" *ngFor="let m of menus;trackBy:trackBy" style="text-align:inherit;">
+                  <ion-card style="height:90%;" class="card btn btn-white btn-animate">
+                    <img *ngIf="m.itemtype === 'N'" src="assets/icon/nonveg.png" style="width: 10px;margin-right: 87%;"
+                      (click)="addproduct(m)">
+                    <img *ngIf="m.itemtype !== 'N'" src="assets/icon/veg.png" style="width: 10px;margin-right: 87%;"
+                      (click)="addproduct(m)">
+                    <ion-grid class="">
+                      <div>
+                        <ion-row *ngIf="m.image!=''">
+                          <ion-col>
+                            <img src="{{m.image}}" (click)="addproduct(m)">
+                          </ion-col>
+                        </ion-row>
+                        <ion-row *ngIf="m.image ==''">
+                          <ion-col>
+                            <img *ngIf="m.image ==''" src="assets/images/image.png" style="width: 80% !important;"
+                              (click)="addproduct(m)">
+                          </ion-col>
+                        </ion-row>
+                      </div>
+                      <div>
+                        <ion-row class="tooltip">
+                          <ion-col (click)="addproduct(m)">
+                            <p class="menu_name" style="font-weight: bold;font-size: 11px">
+                              {{m.name}}<span *ngIf="m.productionMappingStatus === true" class="menu_name"
+                                style="font-weight: bolder ; color: rgb(182, 141, 88);">-[{{m.productionItemCount |
+                                number:'.2' }}]</span></p>
+                          </ion-col>
+                          <span class="tooltiptext">{{m.name}}</span>
+                        </ion-row>
+                      </div>
+                      <div style="position: var(--padding-end);">
+                        <ion-row>
+                          <ion-col (click)="addproduct(m)" style="font-weight: bold;font-size: 11px;text-align: left;">
+                            {{m.price |
+                            currency:currency:"symbol"}}</ion-col>
+                          <ion-col>
+                            <span *ngIf="m.qty>=1" (click)="knotesPopover($event,m)">
+                              <ion-icon name="create"></ion-icon>&nbsp;&nbsp;
+                            </span>
+                            <span *ngIf="m.qty>=1" (click)="addonspopup(m)">
+                              <ion-icon name="add-circle" style="color:green"></ion-icon>
+                            </span>
+                          </ion-col>
+                        </ion-row>
+                      </div>
+                    </ion-grid>
+                  </ion-card>
+                </ion-col>
+              </ion-row>
+            </div>
+          </ion-row>
+          <ion-row *ngIf="data.menuview=='1' && ismenu === false" class="category" style="overflow-y:auto"
+            [ngStyle]="{'height.px':height}" (click)="myMouseClicked($event)">
+            <div>
+              <ion-row>
+                <ion-col size="3" style="text-align:inherit;" *ngFor="let item of Arr(20).fill(1)">
+                  <ion-card style="height:100%;" class="card btn btn-white btn-animate">
+                    <ion-grid>
+                      <div>
+                        <ion-row>
+                          <ion-col>
+                            <ion-thumbnail style="max-width: 80% !important;">
+                              <ion-skeleton-text animated></ion-skeleton-text>
+                            </ion-thumbnail>
+                          </ion-col>
+                        </ion-row>
+                      </div>
+                      <div>
+                        <ion-row>
+                          <ion-col>
+                            <p>
+                              <ion-skeleton-text animated></ion-skeleton-text>
+                            </p>
+                          </ion-col>
+                        </ion-row>
+                      </div>
+                      <div>
+                        <ion-row>
+                          <ion-col>
+                            <p>
+                              <ion-skeleton-text animated></ion-skeleton-text>
+                            </p>
+                          </ion-col>
+                        </ion-row>
+                      </div>
+                    </ion-grid>
+                  </ion-card>
+                </ion-col>
+              </ion-row>
+            </div>
+          </ion-row>
+          <ion-row *ngIf="data.menuview=='2'" class="category" style="overflow-y:auto" [ngStyle]="{'height.px':height}"
+            (click)="myMouseClicked($event)">
+            <div>
+              <ion-row>
+                <ion-col size="6" *ngFor="let m of menus;trackBy:trackBy" style="text-align:inherit;">
+                  <ion-card style="height:95%;" class="card btn btn-white btn-animate">
+                    <img *ngIf="m.itemtype === 'N'" src="assets/icon/nonveg.png" style="width: 10px;margin-right: 93%;"
+                      (click)="addproduct(m)">
+                    <img *ngIf="m.itemtype !== 'N'" src="assets/icon/veg.png" style="width: 10px;margin-right: 93%;"
+                      (click)="addproduct(m)">
+                    <ion-grid class="">
+                      <div>
+                        <ion-row *ngIf="m.image!=''">
+                          <ion-col>
+                            <img src="{{m.image}}" (click)="addproduct(m)">
+                          </ion-col>
+                        </ion-row>
+                        <ion-row *ngIf="m.image ==''">
+                          <ion-col><img *ngIf="m.image ==''" src="assets/images/image.png" (click)="addproduct(m)">
+                          </ion-col>
+                        </ion-row>
+                      </div>
+                      <div>
+                        <ion-row class="tooltip">
+                          <ion-col>
+                            <p class="menu_name" style="font-weight: bold;font-size: 14px;text-align: left;">
+                              {{m.name}}<span
+                                *ngIf="m.productionMappingStatus === true">{{-m.productionItemCount}}</span></p>
+                          </ion-col>
+                          <span class="tooltiptext">{{m.name}}</span>
+                        </ion-row>
+                      </div>
+                      <div style="position: var(--padding-end);">
+                        <ion-row>
+                          <ion-col style="font-weight: bold;font-size: 14px;text-align: left;">
+                            {{m.price | currency:currency:"symbol"}}</ion-col>
+                          <ion-col>
+                            <span (click)="knotesPopover($event,m)">
+                              <ion-icon name="create" *ngIf="m.qty>=1"></ion-icon>&nbsp;&nbsp;
+                            </span>
+                            <span (click)="addonspopup(m)">
+                              <ion-icon name="add-circle" *ngIf="m.qty>=1" style="color:green"></ion-icon>
+                            </span>
+                          </ion-col>
+                        </ion-row>
+                      </div>
+                    </ion-grid>
+                  </ion-card>
+                </ion-col>
+              </ion-row>
+            </div>
+          </ion-row>
+        </div>
+      </ion-col>
+      <!--Cart Items-->
+      <ion-col size="4" class="scroll" style="font-size: 12px; border-right: 1px solid #e6e6e6;overflow-y: auto;"
+        [ngStyle]="{'height.px':height}" (click)="myMouseClicked($event)">
+        <div *ngIf="cart_items > 0">
+          <ion-row>
+            <ion-col *ngIf="ORDER_ID!=null && ORDER_ID!=undefined && ORDER_ID!=''">
+              <p><b>Order Id</b> : {{ORDER_ID}}</p>
+            </ion-col>
+            <ion-col>
+              <p><b>Total Items</b> : {{cart_items}}</p>
+            </ion-col>
+            <ion-col>
+              <p><b>Total Qty</b> : {{cartItems}}</p>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="4"><b>Name</b></ion-col>
+            <ion-col size="4" style="text-align: center;"><b>Qty</b></ion-col>
+            <ion-col size="3" class="amountright"><b>Price</b></ion-col>
+            <ion-col size="1"></ion-col>
+          </ion-row>
+          <div id='close' class="scroll" style="height: 315px;overflow-y: auto;">
+            <div *ngFor="let c of cartdetails;let i=index">
+              <div *ngIf="c.currentstatus=='' || c.currentstatus=='k' || c.currentstatus=='K' ">
+                <ion-row *ngIf="c.count > 0 && (c.currentstatus=='k' || c.currentstatus=='K')"
+                  style="background-color: #96df22;border-bottom: 2px solid #fff;">
+                  <ion-col size="4"><span *ngIf="c.modparent!=0">**</span>{{c.name}}<br> <span
+                      *ngIf="c.productionMappingStatus === true" class="menu_name">--{{c.productionItemCount |
+                      number:'.2' }}</span> <span *ngIf="c.knoterem != undefined">{{c.knoterem}}</span></ion-col>
+                  <ion-col size="1">{{c.count}}
+                  </ion-col>
+                  <ion-col size="1.5" *ngIf="oneuiinstance === 'H'">
+                    <ion-input name="discperc" [readonly]="true" type="tel" placeholder="" class="carttext"
+                      style="border: 1px solid #a6a6a6; height: 19px; --padding-end:5px;" ngModel
+                      [(ngModel)]="c.idiscprice"></ion-input>
+                  </ion-col>
+                  <ion-col size="1.5" *ngIf="oneuiinstance === 'H'">
+                    <ion-input name="discperc" [readonly]="true" type="tel" placeholder="" class="carttext"
+                      style="border: 1px solid #a6a6a6; height: 19px; --padding-end:5px;" ngModel
+                      [(ngModel)]="c.idiscperc"></ion-input>
+                  </ion-col>
+                  <ion-col size="1.5" *ngIf="oneuiinstance !== 'H'">
+                  </ion-col>
+                  <ion-col size="1.5" *ngIf="oneuiinstance !== 'H'">
+                  </ion-col>
+                  <ion-col size="1">
+
+                    <ion-checkbox (ionChange)="deleteitem(cartdetails)" [(ngModel)]="c.checked"></ion-checkbox>
+                  </ion-col>
+                  <ion-col size="3" class="amountright">
+                    {{c.totalPrice | currency:currency:"symbol"}}
+                  </ion-col>
+                </ion-row>
+                <ion-row *ngIf="c.count > 0 && c.currentstatus==''"
+                  style=" background-color:#f2f2f2;border-bottom: 2px solid #fff;">
+                  <ion-col size="4"><span *ngIf="c.modparent!=0">**</span>{{c.name}}<br
+                      *ngIf="c.knoterem != undefined">{{c.knoterem}}</ion-col>
+                  <ion-col size="4.5">
+                    <ion-row>
+                      <ion-col size="3" style="text-align: right;margin-bottom: -20px;">
+                        <ion-badge style="width: 20px;" (click)="minus_cart(c)"> - </ion-badge>&nbsp;&nbsp;&nbsp;
+                      </ion-col>
+                      <ion-col size="6">
+                        <ion-input type="tel" style=" margin-top:-11px;" name="count"
+                          id="qty{{c.product_id}}{{c.count}}" (keypress)="keyPress($event)" (keyup)="additem(c)"
+                          minlength=1 maxlength=3 [(ngModel)]="c.count"></ion-input>
+                      </ion-col>
+                      <ion-col size="3" style="text-align: left;margin-bottom: -20px;">
+                        <ion-badge style="width: 20px;" (click)="add_cart(c)">+</ion-badge>
+                      </ion-col>
+                    </ion-row>
+                  </ion-col>
+                  <ion-col size="2.5" class="amountright">
+                    {{c.totalPrice | number:'.2'}}
+                  </ion-col>
+                  <ion-col size="1" style="text-align: right;" (click)="clearItem(c)">
+                    <ion-icon size="small" style="color: red;" name="close-circle-outline"></ion-icon>
+                  </ion-col>
+                </ion-row>
+              </div>
+            </div>
+          </div>
+          <div id='show' [@openClose]="show ? true : false" style="margin-top: 5px;" class="open-close-container">
+            <ion-row>
+              <ion-col size="6" style="padding: 0px;">
+                <ion-row style="padding: 2px;">
+                  <ion-col size="3.5" style="padding: 0px;"><b>Discount</b></ion-col>
+                  <ion-col size="3" style="padding: 0px;">
+                    <ion-select ngModel [(ngModel)]="discby"
+                      style="border: 1px solid #333;padding: 0px;padding-left: 6px;">
+                      <ion-select-option value="P">%</ion-select-option>
+                      <ion-select-option value="R">Rs</ion-select-option>
+                    </ion-select>
+                  </ion-col>
+                  <ion-col size="0.5" style="padding: 0px;"></ion-col>
+                  <ion-col size="4" style="padding: 0px;" class="amountright">
+                    <ion-input *ngIf="discby=='P'" name="discperc" (click)="clickper()" (keyup)="clrper($event)"
+                      type="tel" placeholder="" class="carttext"
+                      style="border: 1px solid #a6a6a6; height: 19px; --padding-end:5px;" ngModel
+                      [(ngModel)]="discperc"></ion-input>
+                    <ion-input *ngIf="discby=='R'" name="discamnt" (click)="clickprice()" type="tel"
+                      (keyup)="clrRS($event)" placeholder="" class="carttext"
+                      style="border: 1px solid #a6a6a6; height: 19px; --padding-end:5px;" ngModel
+                      [(ngModel)]="discamnt"></ion-input>
+                  </ion-col>
+                  <ion-col size="1" style="padding: 0px;"></ion-col>
+                </ion-row>
+              </ion-col>
+              <ion-col size="6" style="padding: 0px;">
+                <ion-row style="padding: 2px;">
+                  <ion-col size="6" style="padding: 0px;"><b>Sub Total</b></ion-col>
+                  <ion-col size="1" style="padding: 0px;"></ion-col>
+                  <ion-col size="4" style="padding: 0px;padding-right: 5px;" class="amountright">{{subtotal |
+                    currency:currency:"symbol"}} </ion-col>
+                </ion-row>
+              </ion-col>
+            </ion-row>
+
+
+            <ion-row>
+              <ion-col size="6" *ngFor="let i of tax_list2" style="padding: 0px;">
+                <ion-row style="padding: 2px;">
+
+                  <ion-col size="6" style="padding: 0px;"><b>{{i.taxname}}</b></ion-col>
+
+                  <ion-col size="1" style="padding: 0px;"></ion-col>
+                  <ion-col size="4" style="padding: 0px;" class="amountright">
+                    <ion-input name="tax_list" type="tel" *ngIf="i.customizetax=='Y'" class="carttext"
+                      style="border: 1px solid #a6a6a6; height: 19px; --padding-end:5px;" (keypress)="keyPress($event)"
+                      (focusout)="calcpriceOnKeyPress()" id="custtax_{{i.taxid}}" value="{{i.taxamount}}"></ion-input>
+                    <ion-input [readonly]="true"
+                      style="background-color: #cccccc; border: 1px solid #a6a6a6; height: 19px; --padding-end:5px;"
+                      name="tax_list" *ngIf="i.customizetax=='N'" placeholder="" value="{{i.taxamount}}"></ion-input>
+                  </ion-col>
+                </ion-row>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+
+              <ion-col size="6" style="padding: 0px;">
+                <ion-row *ngIf="billroundoff=='Y'" style="padding: 2px;">
+                  <ion-col size="6" style="padding: 0px;"><b>Round Off</b></ion-col>
+                  <ion-col size="1" style="padding: 0px;"></ion-col>
+                  <ion-col size="4" style="padding: 0px;padding-right: 5px;" class="amountright">{{roundoff}}</ion-col>
+                </ion-row>
+              </ion-col>
+              <ion-col size="6" style="padding: 0px;">
+                <ion-row>
+                  <ion-col size="6">
+                    <ion-label><b>Complimentary</b></ion-label>
+                  </ion-col>
+                  <ion-col size="1" style="padding: 0px;"></ion-col>
+                  <ion-col size="4" style="padding: 0px;padding-right: 5px;" class="amountright">
+                    <ion-checkbox style="align-items: center" [(ngModel)]="ischecked"></ion-checkbox>
+                  </ion-col>
+                </ion-row>
+              </ion-col>
+            </ion-row>
+          </div>
+          <div>
+          </div>
+          <div>
+            <ion-row>
+              <ion-col *ngIf="show === false" style="text-align: center;" (click)="showTax()">
+                <ion-icon style="font-size: 20px;margin-top: -20px" color="medium" name="chevron-up-circle"></ion-icon>
+              </ion-col>
+              <ion-col *ngIf="show === true" style="text-align: center;" (click)="closeTax()">
+                <ion-icon style="font-size: 20px;" color="medium" name="chevron-down-circle"></ion-icon>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col (click)="custModal()" size="3" style="text-align:left ;margin-top:-3.5px;">
+                <ion-icon style="font-size: 20px;" color="medium" name="person-add-sharp"></ion-icon>
+              </ion-col>
+              <ion-col size="4" style="text-align: right;"><b>Grand Total</b></ion-col>
+              <ion-col size="5" class="amountright" style="padding-right:10px;font-weight: bold;font-size:medium">
+                {{grandtotal | currency:currency:"symbol"}}</ion-col>
+            </ion-row>
+            <ion-row *ngIf="(cust=='E' || cust=='P' || cust=='D' || cust=='R')">
+              <ion-col>
+                <ion-button color="secondary" size="small" *ngIf="oneuiinstance=='H'" (click)="Hsaveorder('N')"
+                  class="buttonstyle">KOT</ion-button>
+                <ion-button color="secondary" size="small" *ngIf="oneuiinstance=='C'" (click)="saveorder('N')"
+                  class="buttonstyle">KOT</ion-button>
+              </ion-col>
+              <ion-col style="text-align: center;">
+                <ion-button color="secondary" size="small" *ngIf="oneuiinstance=='H'" (click)="save();"
+                  class="buttonstyle">KOT & Bill</ion-button>
+                <ion-button color="secondary" size="small" *ngIf="oneuiinstance=='C'" (click)="save()"
+                  class="buttonstyle">Bill
+                </ion-button>
+              </ion-col>
+              <ion-col>
+                <ion-button color="secondary" size="small" (click)="delete()" class="buttonstyle"
+                  [disabled]="(checkitem.length==0)">Cancel KOT</ion-button>
+              </ion-col>
+              <ion-col style="text-align: right;">
+                <ion-button color="secondary" *ngIf="oneuiinstance=='H'" (click)="Hsaveorder('S')" size="small"
+                  class="buttonstyle">Save
+                </ion-button>
+                <ion-button color="secondary" *ngIf="oneuiinstance=='C'" (click)="saveorder('S')" size="small"
+                  class="buttonstyle">Save
+                </ion-button>
+              </ion-col>
+
+              <ion-col *ngIf="oneuiinstance=='H'">
+                <ionic-selectable #printercomponet [(ngModel)]="printer" [items]="printers" itemValueField="printID"
+                  itemTextField="printName" [canSearch]="true" (onChange)="selectPrinter($event)" class="selectoption"
+                  placeholder="Select Printer">
+                </ionic-selectable>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="cust=='S'">
+              <ion-col size="2.7">
+                <ion-button color="secondary" size="small" *ngIf="oneuiinstance=='H'" (click)="Hsaveorder('Y')"
+                  class="buttonstyle">Bill Settlement</ion-button>
+                <ion-button color="secondary" size="small" *ngIf="oneuiinstance=='C'" (click)="saveorder('Y')"
+                  class="buttonstyle">Bill Settlement</ion-button>
+              </ion-col>
+              <ion-col size="1.3">
+              </ion-col>
+              <ion-col size="0.5">
+                <span class="shortcutkey">F10</span>
+              </ion-col>
+              <ion-col size="3">
+                <ion-button color="secondary" size="small" (click)="delete()" class="buttonstyle"
+                  [disabled]="(checkitem.length==0)">Cancel KOT</ion-button>
+              </ion-col>
+            </ion-row>
+          </div>
+        </div>
+        <div *ngIf="cart_items == 0" style="margin-top: 10%;text-align: center;color: #a6a6a6;margin-top: 200px;">
+          <h2>There is no cart Items</h2>
+        </div>
+      </ion-col>
+    </ion-row>
+
+    <div *ngIf="addons==1" style="margin-top: -36%;">
+      <ion-row>
+        <ion-col size="2"></ion-col>
+        <ion-col size="6">
+          <ion-card style="padding: 12px;height:350px;">
+            <ion-row>
+              <ion-col size="1" (click)="closepopup()">
+                <ion-icon name="close" style="font-size: 16px;"></ion-icon>
+              </ion-col>
+              <ion-col size="8" *ngIf="variance.length==0">
+                <p style="text-align: center;color: #854110;"><b>Modifier</b></p>
+              </ion-col>
+              <ion-col size="8" *ngIf="variance.length!=0">
+                <p style="text-align: center;color: #854110;"><b>{{parentname}}</b></p>
+              </ion-col>
+            </ion-row>
+            <ion-row style="padding-left: 40px;" class="thead">
+              <ion-col size="1"></ion-col>
+              <ion-col size="6">Name</ion-col>
+              <ion-col size="1">QTY</ion-col>
+              <ion-col size="3">Unit Price</ion-col>
+            </ion-row>
+            <!--Modifier-->
+            <div style="height: 200px;overflow-y: auto;" class="category" *ngIf="variance.length==0">
+              <ion-row *ngFor="let m of modifier;let i=index" style="padding-left: 40px;">
+                <ion-col size="1">
+                  <ion-checkbox (ionChange)="add_on($event,m)" [checked]="m.checked"></ion-checkbox>
+                </ion-col>
+                <ion-col size="6">{{m.name}}</ion-col>
+                <ion-col size="1">
+                  <ion-input type="tel" minlength=1 maxlength=3 [(ngModel)]="modifier[i].qty" (click)="clrqtymod(m)"
+                    style="border: 1px solid #333;--padding-top: 1px;--padding-start: 5px;--padding-bottom:0px"
+                    (keypress)="keyPress($event)"></ion-input>
+                </ion-col>
+                <ion-col size="3" style="text-align: right;">{{m.price | number:'.2'}}</ion-col>
+              </ion-row>
+            </div>
+            <div style="height: 200px;overflow-y: auto;" class="category" *ngIf="variance.length>0">
+              <ion-list>
+                <ion-radio-group>
+                  <ion-row *ngFor="let m of variance;let i=index" style="padding-left: 40px;">
+                    <ion-col size="1">
+                      <ion-radio (click)="variance_on($event,m)"></ion-radio>
+                    </ion-col>
+                    <ion-col size="6">{{m.name}}</ion-col>
+                    <ion-col size="1">
+                      <ion-input type="tel" minlength=1 maxlength=3 [(ngModel)]="variance[i].qty"
+                        style="border: 1px solid #333;--padding-top: 1px;--padding-start: 5px;--padding-bottom:0px"
+                        (keypress)="keyPress($event)"></ion-input>
+                    </ion-col>
+                    <ion-col size="3" style="text-align: right;">{{m.price | number:'.2'}}</ion-col>
+                  </ion-row>
+                </ion-radio-group>
+              </ion-list>
+            </div>
+            <ion-row>
+              <ion-col size="5"></ion-col>
+              <ion-col size="2">
+                <ion-button color="secondary" *ngIf="variance.length==0" size="small" [disabled]="addon.length==0"
+                  (click)="addmodifier()">Save</ion-button>
+                <ion-button color="secondary" *ngIf="variance.length>0" size="small" [disabled]="addon.length==0"
+                  (click)="addvariance(cartProduct)">ADD</ion-button>
+              </ion-col>
+              <ion-col size="5"></ion-col>
+            </ion-row>
+          </ion-card>
+        </ion-col>
+        <ion-col size="3"></ion-col>
+      </ion-row>
+    </div>
+  </div>
+
+  <div *ngIf="width <= 500">
+
+    <ion-row style="padding-bottom:15px;">
+      <ion-col size="2.5" style="padding-top:10px ;">
+
+        <ionic-selectable [(ngModel)]="floorvalue" [items]="floor1" itemValueField="fid" itemTextField="descr"
+          [canSearch]="true" (onChange)="floorchange($event)" class="selectoption" placeholder="Floor">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col size="2.5" style="height:28px;padding-top:10px ;" *ngIf="cust=='E'">
+
+        <ionic-selectable #tableComponent [(ngModel)]="tablevalue" [items]="table1" itemValueField="id"
+          itemTextField="tno" [canSearch]="true" (onChange)="tableChange($event)" class="selectoption"
+          placeholder="Table No">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col size="2" style="height:28px;padding-top: 10px" *ngIf="cust=='E'">
+        <ion-input type="tel" name="drppeople" id="drppeople" minlength="1" maxlength="3" (keypress)="keyPress($event)"
+          class="selectoption" [(ngModel)]="noofpax" Placeholder="No of Pax"></ion-input>
+      </ion-col>
+      <ion-col size="2.5" style="height:28px;padding-top:10px ;" *ngIf="cust=='E'">
+
+        <ionic-selectable #captainComponent [(ngModel)]="captainvalue" [items]="captain1" itemValueField="id"
+          itemTextField="cname" [canSearch]="true" (onChange)="captainChange($event)" class="selectoption"
+          placeholder="Captain">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col size="2.5" style="height:28px;padding-top:10px ;" *ngIf="cust=='P' || cust === 'E'">
+
+        <ionic-selectable #waiterComponent [(ngModel)]="waitervalue" [items]="waiter1" itemValueField="wid"
+          itemTextField="wname" [canSearch]="true" (onChange)="waiterChange($event)" class="selectoption"
+          placeholder="Waiter">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col size="2.5" style="height:28px;padding-top:10px ;" *ngIf="cust=='P' || cust=='D'">
+        <ionic-selectable #onlinecomponent [(ngModel)]="onlinerefvalue" [items]="onlinerefmstr" itemValueField="id"
+          itemTextField="descr" [canSearch]="true" (onChange)="onlinerefChange($event)" class="selectoption"
+          placeholder="Online Reference">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col size="3" style="height:28px;padding-top:10px ;" *ngIf="cust=='P' || cust=='D'">
+        <ionic-selectable #deliverytimecomponet [(ngModel)]="delivery_time" [items]="deliverytime_arr"
+          itemValueField="id" itemTextField="deliverytiming" [canSearch]="true" (onChange)="select_timing($event)"
+          class="selectoption" placeholder="Delivery Time">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col size="3" style="height:28px;padding-top:10px" *ngIf="cust=='R' &&  HtlDesk=='N'">
+        <ionic-selectable #roomlistcomponet [(ngModel)]="roomvalues" [items]="rooms" itemValueField="id"
+          itemTextField="name" [canSearch]="true" (onChange)="select_room($event)" class="selectoption"
+          placeholder="Room List">
+        </ionic-selectable>
+      </ion-col>
+      <ion-col size="3" style="height:28px;padding-top:10px" *ngIf="cust=='R' &&  HtlDesk=='Y'">
+        <ion-input name="discamnt" (ionBlur)="checkroomno()" placeholder="" class="roombox"
+          style="border: 1px solid #000000; height: 23px; --padding-end:5px;" ngModel [(ngModel)]="roomno"></ion-input>
+      </ion-col>
+    </ion-row>
+    <!-- <span style="overflow:auto"> -->
+    <ion-item style="width:100vw; overflow-x: auto;margin-bottom: 10px;margin-top: -18px;height: 34px;"
+      (click)="myMouseClicked($event)">
+      <span *ngFor="let c of category">
+        <ion-card>
+          <ion-label (click)="menudetail(c.id)" [ngClass]="(catid == c.id) ? 'selctcat' : 'selctnoncat'"
+            style="text-transform: uppercase;">{{c.name}}</ion-label>
+        </ion-card>
+      </span>
+    </ion-item>
+    <!-- </span> -->
+    <ion-row style="height:60px;">
+      <ion-col size="6">
+        <!-- <ion-item style="border:1px solid #57312a;height:38px"> -->
+        <ion-searchbar [(ngModel)]="data.search" (ionChange)="searchitem()" mode='ios' showCancelButton="never"
+          style="padding-bottom: 35px" animated></ion-searchbar>
+        <!-- <ion-input name="menu" type="text" placeholder="Search Menu" ngModel  [(ngModel)]="data.search" (ionChange)="searchitem()"></ion-input> -->
+        <!-- <ion-icon name="close" style="margin-top: -4px;margin-right: -3px;font-size: 17px;" (click)="clear()"></ion-icon> -->
+        <!-- </ion-item> -->
+
+      </ion-col>
+      <ion-col size="2" style="margin-top: 6px;">
+        <ion-input placeholder="QTY" [(ngModel)]="data.qty" (keypress)="keyPress($event)" minlength=1 maxlength=6
+          name="qty" type="number" id="qty1" autofocus="true" ngModel [(ngModel)]="data.qty"
+          style="--background: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.07);border-radius: 5px;height: 25px;">
+        </ion-input>
+
+        <!-- <ion-input class="searchqty"  ngModel  [(ngModel)]="data.qty" name="qty" (keypress)="keyPress($event)" minlength=1 maxlength=6  type="tel" pattern="[0-9]*" id="qty1" autofocus="true" ngModel  [(ngModel)]="data.qty" (click)="searchqty()"></ion-input> -->
+      </ion-col>
+      <ion-col size="1" *ngFor="let m of search_menu">
+        <ion-icon style="padding-top: 9px;padding-left: 7px;" name="create" (click)="pencil1(m)" *ngIf="length!=0">
+        </ion-icon>
+      </ion-col>
+      <ion-col size="2">
+
+        <ion-button color="secondary" size="small" (click)="search_add()" [disabled]="(length==0)">ADD</ion-button>
+      </ion-col>
+      <ion-col size="1" style="padding: 0px;padding-top: 12px;" (click)="handleButtonClick()">
+        <span>
+          <ion-icon name="settings" style="font-size:20px;padding-left: 5px;"></ion-icon>
+        </span>
+      </ion-col>
+    </ion-row>
+    <div *ngIf="form1==true">
+      <div style="overflow-y:auto;max-height:150px">
+        <ion-row *ngFor="let m of menussearch"
+          style="background: rgb(50, 41, 41);position: relative;z-index: 999;  padding: 6px !important;color: white;"
+          (click)="select_menu(m)">
+          {{m.name}}<span *ngIf="m.productionMappingStatus === true" class="menu_name"
+            style="font-weight: bolder ; color:burlywood;">-[{{m.productionItemCount | number:'.2' }}]</span>
+          <ion-col></ion-col>
+        </ion-row>
+      </div>
+    </div>
+
+    <div>
+      <ion-row>
+        <!--<ion-col size="5.8"  *ngFor="let m of menus" [ngClass]="(m.image=='') ? 'withoutimage':'withimage'">
+            <p  *ngIf="m.image==''" >
+                <span (click)="addproduct(m)">{{m.name}}</span>&nbsp;&nbsp;
+                <ion-icon name="create"  (click)="pencil1(m)" *ngIf="m.qty>=1"></ion-icon>&nbsp;&nbsp;
+                <ion-icon name="add-circle" (click)="addonspopup(m)" *ngIf="m.qty>=1" style="color:green"></ion-icon><br>
+                <span style="font-size: 13px;"  (click)="addproduct(m)">{{m.price | number:'.2'}}</span>
+            </p>
+              <img *ngIf="m.image!=''" src="{{m.image}}"   (click)="addproduct(m)">
+              <ion-row *ngIf="m.image!=''">
+                <ion-col size="8" style="text-align: center;">
+                  <h6 class="menuname" >{{m.name}}</h6>
+                  <p style="font-size:12px"  (click)="addproduct(m)">{{m.price | number:'.2'}}</p>
+                </ion-col>
+                <ion-col size="1">
+                  <ion-icon name="create"  (click)="pencil1(m)" *ngIf="m.qty>=1"> </ion-icon> 
+                  
+                </ion-col>
+                <ion-col size="0.5"></ion-col>
+                <ion-col size="1">
+                  
+                  <ion-icon name="add-circle" (click)="addonspopup(m)" *ngIf="m.qty>=1" style="color:green"></ion-icon>
+                </ion-col>
+                <ion-col size="0.5"></ion-col>
+              </ion-row>
+              
+          </ion-col> -->
+        <div style="margin-top: -10px">
+          <ion-row (click)="myMouseClicked($event)">
+            <ion-col size="6" *ngFor="let m of menus" style="text-align:inherit;">
+              <ion-card style="height:90%;" class="card btn btn-white btn-animate">
+                <img *ngIf="m.itemtype !== 'V'" src="assets/icon/nonveg.png" style="width: 10px;margin-right: 87%;"
+                  (click)="addproduct(m)">
+                <img *ngIf="m.itemtype === 'V'" src="assets/icon/veg.png" style="width: 10px;margin-right: 87%;"
+                  (click)="addproduct(m)">
+                <ion-grid class="">
+                  <div>
+                    <ion-row *ngIf="m.image!=''">
+                      <ion-col><img src="{{m.image}}" (click)="addproduct(m)"></ion-col>
+                    </ion-row>
+                    <ion-row *ngIf="m.image ==''">
+                      <ion-col><img *ngIf="m.image ==''" src="assets/images/image.png" (click)="addproduct(m)">
+                      </ion-col>
+                    </ion-row>
+                  </div>
+                  <div>
+                    <ion-row class="tooltip">
+                      <ion-col>
+                        <p class="menu_name">{{m.name}}<span *ngIf="m.productionMappingStatus === true"
+                            class="menu_name" style="font-weight: bolder ; color:burlywood;">-[{{m.productionItemCount |
+                            number:'.2' }}]</span></p>
+                      </ion-col>
+                      <span class="tooltiptext">{{m.name}}</span>
+                    </ion-row>
+                  </div>
+                  <div style="position: var(--padding-end);">
+                    <ion-row>
+                      <ion-col>{{m.price | currency:currency:"symbol"}}</ion-col>
+                      <ion-col><span (click)="pencil1(m)" *ngIf="m.qty>=1">
+                          <ion-icon name="create"></ion-icon>
+                        </span>&nbsp;&nbsp;
+                        <span (click)="addonspopup(m)" *ngIf="m.qty>=1">
+                          <ion-icon name="add-circle" style="color:green"></ion-icon>
+                        </span>
+                      </ion-col>
+                    </ion-row>
+                  </div>
+                </ion-grid>
+              </ion-card>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf=" ismenu === false" class="category" style="overflow-y:auto" (click)="myMouseClicked($event)">
+            <div>
+              <ion-row>
+                <ion-col size="6" style="text-align:inherit;" *ngFor="let item of Arr(20).fill(1)">
+                  <ion-card style="height:90%;" class="card btn btn-white btn-animate">
+                    <ion-grid>
+                      <div>
+                        <ion-row>
+                          <ion-col>
+                            <ion-thumbnail style="max-width: 80% !important;">
+                              <ion-skeleton-text animated></ion-skeleton-text>
+                            </ion-thumbnail>
+                          </ion-col>
+                        </ion-row>
+                      </div>
+                      <div>
+                        <ion-row>
+                          <ion-col>
+                            <p>
+                              <ion-skeleton-text animated></ion-skeleton-text>
+                            </p>
+                          </ion-col>
+                        </ion-row>
+                      </div>
+                      <div>
+                        <ion-row>
+                          <ion-col>
+                            <p>
+                              <ion-skeleton-text animated></ion-skeleton-text>
+                            </p>
+                          </ion-col>
+                        </ion-row>
+                      </div>
+                    </ion-grid>
+                  </ion-card>
+                </ion-col>
+              </ion-row>
+            </div>
+          </ion-row>
+        </div>
+        <!-- <div *ngIf="itemwisedet==1"  style="margin-top:-850%">
+            <ion-row>
+              <ion-col size="1"></ion-col>
+              <ion-col size="10"> 
+                <ion-card style="padding: 5px;">
+                  <p style="font-size:20px;text-align: center;" ><b>Item Wise Details</b></p>
+                  <ion-row>
+                    <ion-col  size="6"><p style="font-size: 18px;">Kitchen Notes</p></ion-col>
+                    <ion-col  size="6" >
+                          <ion-select style="border: 1px solid #333;height: 20px;">
+                            <div *ngFor="let k of kitchennotes">
+                              <ion-select-option value="{{k.id}}">{{k.descr}}</ion-select-option>
+                            </div>
+                          </ion-select>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row *ngIf="itemcomp=='Y'">
+                    <ion-col><p style="font-size: 18px;">Complimentary</p></ion-col>
+                    <ion-col><ion-toggle  [(ngModel)]="n" name="complimentary" color="secondary" id="complimentary"></ion-toggle></ion-col>
+                    </ion-row>
+                    <ion-row *ngIf="cust=='E'">  
+                      <ion-col><p style="font-size: 18px;">Take Away</p></ion-col>
+                      <ion-col><ion-toggle name="takeaway" color="secondary" id="takeaway" value="off"  ></ion-toggle></ion-col>
+                      </ion-row>
+                      <ion-row>
+                        <ion-col size="6"><p style="font-size: 18px;">Discount in Rs</p> </ion-col>
+                        <ion-col size="6">
+                          <ion-input type="tel" minlength="1" maxlength="3" (keypress)="keyPress($event)" [(ngModel)]="noofpax" style="border: 1px solid #333;height: 20px;"></ion-input>
+                        </ion-col>
+                      </ion-row>
+                      <ion-row>
+                        <ion-col size="6"><p style="font-size: 18px;">Discount in %</p> </ion-col>
+                        <ion-col size="6">
+                          <ion-input type="tel" minlength="1" maxlength="3" (keypress)="keyPress($event)" [(ngModel)]="noofpax" style="border: 1px solid #333;height: 20px;"></ion-input>
+                        </ion-col>
+                      </ion-row>
+                      <ion-row>
+                        <ion-col size="5"></ion-col>
+                        <ion-col size="2">
+                          <ion-button  color="secondary" size="small" (click)="addmodifier()">Save</ion-button>
+                         
+                        </ion-col>
+                        <ion-col size="5"></ion-col>
+                      </ion-row>
+                </ion-card>
+              </ion-col>
+              <ion-col size="1"></ion-col>
+            </ion-row>
+            
+          </div>-->
+
+      </ion-row>
+    </div>
+
+  </div>
+
+</ion-content>
+<ion-footer *ngIf="width > 500">
+  <ion-row>
+    <ion-col size='0.5' (click)='left()' style="background: lightgrey;">
+      <img src="assets/icon/left.png" style="padding-top: 10px;padding-left: 5px;">
+      <!-- <ion-icon style="font-size: 30px;margin-top: 9px;"  color="medium" name="caret-back-circle"></ion-icon> -->
+    </ion-col>
+    <ion-col size='11'>
+      <ion-item [ngClass]="{'footerScroll': Platform.is('cordova')}">
+        <span *ngFor="let item of settingList">
+          <ion-button size="small" color="medium" (click)=settingOption(item.code)>{{item.name}}</ion-button>
+        </span>
+      </ion-item>
+    </ion-col>
+    <ion-col size='0.5' (click)='right()' style="background: lightgrey;">
+      <img src="assets/icon/right.png" style="padding-top: 10px;padding-left: 5px;">
+      <!-- <ion-icon style="font-size: 30px;margin-top: 9px;"  color="medium" name="caret-forward-circle"></ion-icon> -->
+    </ion-col>
+  </ion-row>
+</ion-footer>
+<ion-footer *ngIf="cartItems > 0 &&  width <= 500">
+  <ion-toolbar (click)="viewcart(cartItems,cartTotalamt)">
+    <p>&nbsp;&nbsp;{{cartItems|number:'.2'}} Items | <strong>{{cartTotalamt |currency:currency:"symbol"}}</strong></p>
+    <!-- <p>&nbsp;&nbsp; {{cartdetails | sum:'count' | number:'.2'}} Items | {{cartdetails | sum:'totalPrice' | number:'.2'}} <strong></strong></p> -->
+    <ion-buttons slot="end">
+      View Cart &nbsp;
+      <ion-icon name="send"></ion-icon>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>
